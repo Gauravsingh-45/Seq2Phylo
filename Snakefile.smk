@@ -18,7 +18,7 @@ rule all:
         "bootstrapped_tree/"
 
 include:
-    "Snakefile_final_1"
+    "Snakefile_1"
 
 include:
-    "Snakefile_final_2"
+    "Snakefile_2"
