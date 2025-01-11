@@ -23,7 +23,10 @@ https://biopython.org/wiki/Download
 6. MAFFT :
 https://mafft.cbrc.jp/alignment/software/
 
-7. IQ-TREE :
+7. Catsequences :
+https://github.com/ChrisCreevey/catsequences
+
+8. IQ-TREE :
 http://www.iqtree.org/
 
 # Seq2Phylo Inputs
