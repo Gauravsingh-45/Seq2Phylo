@@ -22,17 +22,18 @@ rule extract_sequences:
     conda:
         "hybpiper"
     log:
-        "logs/extract_sequences.txt"
+        stdout="extract_sequences.stdout", stderr="extract_sequences.stderr"
     params:
         seq_type=config["seq_type"],
         dir="Hybpiper_output"
     shell:
         """
+        mkdir -p logs
         hybpiper retrieve_sequences \
             --targetfile_dna {input.target_file} \
             --sample_names {input.sample_names} \
             --hybpiper_dir {params.dir} \
-            --fasta_dir {output} {params.seq_type}
+            --fasta_dir {output} {params.seq_type} > {log.stdout} 2> {log.stderr}
         """
 
 rule assembly_statistics:
@@ -45,12 +46,14 @@ rule assembly_statistics:
         "hybpiper"
     params:
         seq_type2="gene"
+    log:
+        stdout="assembly_statistics.stdout", stderr="assembly_statistics.stderr"
     shell:
         """
         cp {input.file} Hybpiper_output/
         cp {input.name_list} Hybpiper_output/
         cd Hybpiper_output
-        hybpiper stats -t_aa {input.file} {params.seq_type2} {input.name_list}
+        hybpiper stats -t_aa {input.file} {params.seq_type2} {input.name_list} > {log.stdout} 2> {log.stderr}
         mv hybpiper_stats.tsv {output.tsv} ../
         """
 
@@ -63,12 +66,14 @@ rule recovery_heatmap:
         heatmap_filetype=config["heatmap_filetype"]
     conda:
         "hybpiper"
+    log:
+        stdout="recovery_heatmap.stdout", stderr="recovery_heatmap.stderr"
     shell:
         """
         hybpiper recovery_heatmap \
             --heatmap_filename gene_recovery_heatmap \
             --heatmap_filetype {params.heatmap_filetype} \
-            {input.heatmap_tsv}
+            {input.heatmap_tsv} > {log.stdout} 2> {log.stderr}
         """
 
 rule nucleotide_translation:
@@ -76,9 +81,11 @@ rule nucleotide_translation:
         dir="extracted_sequences/"
     output:
         directory("translated_gene_sequences/")
+    log:
+        stdout="nucleotide_translation.stdout", stderr="nucleotide_translation.stderr"
     shell:
         """
-        python scripts/nucleotide_translate1.py
+        python scripts/nucleotide_translate1.py > {log.stdout} 2> {log.stderr} 
         """
 
 rule Multiple_sequence_alignment:
@@ -88,9 +95,11 @@ rule Multiple_sequence_alignment:
         directory("aa_aligned_sequences/")
     params:
         mafft_path=config["mafft_path"]
+    log:
+        stdout="Multiple_sequence_alignment.stdout", stderr="Multiple_sequence_alignment.stderr"
     shell:
         """
-        scripts/MAFFT_X.sh {params.mafft_path}
+        scripts/MAFFT_X.sh {params.mafft_path} > {log.stdout} 2> {log.stderr}
         """
 
 rule aligned_sequence_back_translation:
@@ -98,9 +107,11 @@ rule aligned_sequence_back_translation:
         dir="aa_aligned_sequences"
     output:
         directory("nt_aligned_sequences/")
+    log:
+        stdout="aligned_sequence_back_translation.stdout", stderr="aligned_sequence_back_translation.stderr"
     shell:
         """
-        python scripts/back_translate_alignment.py
+        python scripts/back_translate_alignment.py > {log.stdout} 2> {log.stderr}
         """
 
 rule catsequences:
@@ -111,12 +122,14 @@ rule catsequences:
         partition_file="allseqs.partitions.txt"
     params:
         catsequences_path=config["catsequences_path"]
+    log:
+        stdout="catsequences.stdout", stderr="catsequences.stderr"
     shell:
         """
         cd nt_aligned_sequences/
         ls *.FNA > genenames.txt
         export PATH=$PATH:{params.catsequences_path}
-        catsequences genenames.txt
+        catsequences genenames.txt > {log.stdout} 2> {log.stderr}
         mv allseqs.fas allseqs.partitions.txt ../
         """
 
@@ -127,13 +140,15 @@ rule IQ_TREE:
         ("tree_files/allseqs.fas.iqtree")
     params:
         iqtree_path=config["iqtree_path"]
+    log:
+        stdout="IQ_TREE.stdout", stderr="IQ_TREE.stderr"
     shell:
         """
         mkdir -p tree_files
         cp allseqs.fas allseqs.partitions.txt tree_files/
         export PATH=$PATH:{params.iqtree_path}
         cd tree_files
-        iqtree -s allseqs.fas -m MFP
+        iqtree -s allseqs.fas -m MFP > {log.stdout} 2> {log.stderr}
         """
 
 rule get_substitution_model:
@@ -155,6 +170,8 @@ rule bootstrap_replicates:
         iqtree_path=config["iqtree_path"],
         bootstrap=config["bootstrap"],
         replicates=config["bootstrap_replicates"]
+    log:
+        stdout="bootstrap_replicates.stdout", stderr="bootstrap_replicates.stderr"
     shell:
         """
         mkdir -p {output}
@@ -162,8 +179,9 @@ rule bootstrap_replicates:
             cp allseqs.fas {input.model} {output}/
             export PATH=$PATH:{params.iqtree_path}
             cd {output}
-            iqtree -s allseqs.fas -m $(cat {input.model}) -bb {params.replicates}
+            iqtree -s allseqs.fas -m $(cat {input.model}) -bb {params.replicates} > {log.stdout} 2> {log.stderr}
         else
             echo "Bootstrapping skipped as per configuration."
         fi
+        mv *.stdout *.stderr logs/
         """
