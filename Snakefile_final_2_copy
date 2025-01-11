@@ -1,0 +1,169 @@
+configfile: "config.yaml"
+
+rule all2:
+    input:
+        expand("extracted_sequences/"),
+        expand("seq_lengths.tsv"),
+        expand("gene_recovery_heatmap.{file_ext}", file_ext=config['heatmap_filetype']),
+        expand("translated_gene_sequences/"),
+        expand("aa_aligned_sequences/"),
+        expand("nt_aligned_sequences/"),
+        expand("allseqs.fas"),
+        expand("tree_files/allseqs.fas.iqtree"),
+        expand("model.txt"),
+        expand("bootstrapped_tree")
+
+rule extract_sequences:
+    input:
+        target_file=config["target_file"],
+        sample_names=config["sample_names_file"]
+    output:
+        directory("extracted_sequences/")
+    conda:
+        "hybpiper"
+    log:
+        "logs/extract_sequences.txt"
+    params:
+        seq_type=config["seq_type"],
+        dir="Hybpiper_output"
+    shell:
+        """
+        hybpiper retrieve_sequences \
+            --targetfile_dna {input.target_file} \
+            --sample_names {input.sample_names} \
+            --hybpiper_dir {params.dir} \
+            --fasta_dir {output} {params.seq_type}
+        """
+
+rule assembly_statistics:
+    input:
+        file=config["target_file"],
+        name_list=config["sample_names_file"]
+    output:
+        tsv="seq_lengths.tsv"
+    conda:
+        "hybpiper"
+    params:
+        seq_type2="gene"
+    shell:
+        """
+        cp {input.file} Hybpiper_output/
+        cp {input.name_list} Hybpiper_output/
+        cd Hybpiper_output
+        hybpiper stats -t_aa {input.file} {params.seq_type2} {input.name_list}
+        mv hybpiper_stats.tsv {output.tsv} ../
+        """
+
+rule recovery_heatmap:
+    input:
+        heatmap_tsv="seq_lengths.tsv"
+    output:
+        expand("gene_recovery_heatmap.{file_ext}", file_ext=config['heatmap_filetype']),
+    params:
+        heatmap_filetype=config["heatmap_filetype"]
+    conda:
+        "hybpiper"
+    shell:
+        """
+        hybpiper recovery_heatmap \
+            --heatmap_filename gene_recovery_heatmap \
+            --heatmap_filetype {params.heatmap_filetype} \
+            {input.heatmap_tsv}
+        """
+
+rule nucleotide_translation:
+    input:
+        dir="extracted_sequences/"
+    output:
+        directory("translated_gene_sequences/")
+    shell:
+        """
+        python scripts/nucleotide_translate1.py
+        """
+
+rule Multiple_sequence_alignment:
+    input:
+        dir="translated_gene_sequences"
+    output:
+        directory("aa_aligned_sequences/")
+    params:
+        mafft_path=config["mafft_path"]
+    shell:
+        """
+        scripts/MAFFT_X.sh {params.mafft_path}
+        """
+
+rule aligned_sequence_back_translation:
+    input:
+        dir="aa_aligned_sequences"
+    output:
+        directory("nt_aligned_sequences/")
+    shell:
+        """
+        python scripts/back_translate_alignment.py
+        """
+
+rule catsequences:
+    input:
+        dir="nt_aligned_sequences/"
+    output:
+        concatenated_seq="allseqs.fas",
+        partition_file="allseqs.partitions.txt"
+    params:
+        catsequences_path=config["catsequences_path"]
+    shell:
+        """
+        cd nt_aligned_sequences/
+        ls *.FNA > genenames.txt
+        export PATH=$PATH:{params.catsequences_path}
+        catsequences genenames.txt
+        mv allseqs.fas allseqs.partitions.txt ../
+        """
+
+rule IQ_TREE:
+    input:
+        concatenated_seq="allseqs.fas"
+    output:
+        ("tree_files/allseqs.fas.iqtree")
+    params:
+        iqtree_path=config["iqtree_path"]
+    shell:
+        """
+        mkdir -p tree_files
+        cp allseqs.fas allseqs.partitions.txt tree_files/
+        export PATH=$PATH:{params.iqtree_path}
+        cd tree_files
+        iqtree -s allseqs.fas -m MFP
+        """
+
+rule get_substitution_model:
+    input:
+        "tree_files/allseqs.fas.iqtree"
+    output:
+        "model.txt"
+    shell:
+        """
+        grep "Best-fit model according to BIC:" {input} | awk -F: '{{print $2}}' | tr -d '[:space:]' > {output}
+        """
+
+rule bootstrap_replicates:
+    input:
+        model="model.txt"
+    output:
+        directory("bootstrapped_tree")
+    params:
+        iqtree_path=config["iqtree_path"],
+        bootstrap=config["bootstrap"],
+        replicates=config["bootstrap_replicates"]
+    shell:
+        """
+        mkdir -p {output}
+        if [ "{params.bootstrap}" = "yes" ]; then
+            cp allseqs.fas {input.model} {output}/
+            export PATH=$PATH:{params.iqtree_path}
+            cd {output}
+            iqtree -s allseqs.fas -m $(cat {input.model}) -bb {params.replicates}
+        else
+            echo "Bootstrapping skipped as per configuration."
+        fi
+        """

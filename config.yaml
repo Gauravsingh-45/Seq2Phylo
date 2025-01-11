@@ -1,0 +1,50 @@
+threads: 16  # Number of threads to use
+
+###################################################| rule FastQC |##################################################################
+
+samples:  # List of sample prefixes
+  - "T2"
+  - "T16"
+  - "T15"
+
+raw_reads: "/dgxb_home/se23plsc009/snakemake_workflow/pipeline/test/data"  # Path to the directory with raw sequencing reads
+
+##################################################| rule trimmomatic |##############################################################
+
+trimmer:
+  - "TRAILING:3"
+  - "LEADING:3"
+  - "MINLEN:100"
+  - "SLIDINGWINDOW:4:28"  # Trimmomatic parameters
+
+################################################| rule Hybpiper assemble |#########################################################
+    
+sample_names_file: "samplename.txt"           #text file with sample name (list of sample prefixes)
+    
+target_file: "target_loci.fasta"               #fasta file with reference set of genes 
+
+aligner: "diamond"                          #available aligners, select from diamond or bwa
+
+diamond_sensitivity: "very-sensitive"
+
+################################################| rule recovery heatmap |###########################################################
+
+heatmap_filename: "gene_recovery"           #Name of the gene recovery heatmap
+
+heatmap_filetype: "pdf"                      # select from png, pdf, eps, tiff or svg
+
+#####################################################| Path to tools |##############################################################
+
+mafft_path: "/dgxb_home/se23plsc009/softwares/mafft-7.505-with-extensions/core"
+
+catsequences_path: "/dgxb_home/se23plsc009/snakemake_workflow/pipeline/test"
+
+iqtree_path: "/dgxb_home/se23plsc009/snakemake_workflow/pipeline/iqtree-1.6.12-Linux/bin"
+
+seq_type: "dna" 
+
+####################################################| rule Bootstrapping |##########################################################
+
+bootstrap: "no"
+
+bootstrap_replicates: "1000" #No of bootstrap replicates (min recommended no. is 1000, and min sequences in alignment should be >=4)
