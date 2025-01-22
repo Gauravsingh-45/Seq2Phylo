@@ -91,7 +91,7 @@ After the seq2phylo run completes, it generates multiple directories containing 
 
 # Seq2Phylo Usage
 
-1. Ensure the scripts directory, catsequences, Snakefile_1, Snakefile_2, Snakefile.smk and config.yaml are present in a directory.  
+1. Ensure the scripts directory, catsequences, Snakefile_1, Snakefile_2 and config.yaml are present in a directory.  
 
 2. Edit and fill in the config file completely.  
 
