@@ -69,7 +69,7 @@ Two tsv files, named `hybpiper_stats.tsv` and `seq_lengths.tsv`, containing info
 Gene recovery heatmap showing length of the recovered exon sequences, where the colour intensity of each cell represents the recovered sequence length as a percentage of the target gene length.
 
 3. Tree files:  
-The tree_files directory contains allseqs.fas.trerfile, this file is in newick format and can be visualised using ETE toolkit or iTOl visualiser. The same file can be obtained from the bootstrapped_tree directory with bootstrap support values. Bootstrapped tree files are obtained only if boostrap is set to "yes" in the config file.
+The tree_files directory contains allseqs.fas.treefile, this file is in newick format and can be visualised using ETE toolkit or iTOl visualiser. The same file can be obtained from the bootstrapped_tree directory with bootstrap support values. Bootstrapped tree files are obtained only if boostrap is set to "yes" in the config file.
 
 After the seq2phylo run completes, it generates multiple directories containing intermediate files:
 
