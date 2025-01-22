@@ -15,8 +15,7 @@ https://github.com/s-andrews/FastQC
 http://www.usadellab.org/cms/?page=trimmomatic
 
 4. Hybpiper :
-https://github.com/mossmatters/HybPiper/wiki/Installation
-( **Refer to the setup section of above link and install hybpiper using conda** )
+https://github.com/mossmatters/HybPiper/wiki/Installation  ( **Refer to the setup section of above link and install hybpiper using conda** )
 
 6. Biopython :
 https://biopython.org/wiki/Download
