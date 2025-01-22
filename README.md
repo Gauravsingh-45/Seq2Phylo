@@ -11,12 +11,12 @@ https://snakemake.readthedocs.io/en/stable/getting_started/installation.html
 2. FastQC :
 https://github.com/s-andrews/FastQC
 
-3. Trimmomatic : 
-http://www.usadellab.org/cms/?page=trimmomatic
+3. Trimmomatic :  
+http://www.usadellab.org/cms/?page=trimmomatic  
 
-4. Hybpiper :
-https://github.com/mossmatters/HybPiper/wiki/Installation
-( **Refer to the setup section of above link and install hybpiper using conda** )
+4. Hybpiper :  
+https://github.com/mossmatters/HybPiper/wiki/Installation  
+(**Refer to the setup section of the above link and install HybPiper using conda**)
 
 6. Biopython :
 https://biopython.org/wiki/Download
