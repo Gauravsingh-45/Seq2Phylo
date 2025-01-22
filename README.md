@@ -129,3 +129,13 @@ For demonstrating the Seq2Phylo pipeline, download the testing_data.tar.gz file 
 ```plaintext
 tar -zxvf testing_data.tar.gz
 ``` 
+
+2. Run Snakefile_1
+```plaintext
+snakemake --snakefile Snakefile_1 --use-conda
+```
+
+3. Run Snakefile_2
+```plaintext
+snakemake --snakefile Snakefile_2 --use-conda
+```
