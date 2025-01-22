@@ -16,17 +16,18 @@ http://www.usadellab.org/cms/?page=trimmomatic
 
 4. Hybpiper :
 https://github.com/mossmatters/HybPiper/wiki/Installation
+( **Refer to the setup section of above link and install hybpiper using conda** )
 
-5. Biopython :
+6. Biopython :
 https://biopython.org/wiki/Download
 
-6. MAFFT :
+7. MAFFT :
 https://mafft.cbrc.jp/alignment/software/
 
-7. Catsequences :
+8. Catsequences :
 https://github.com/ChrisCreevey/catsequences
 
-8. IQ-TREE :
+9. IQ-TREE :
 http://www.iqtree.org/
 
 # Seq2Phylo Inputs
@@ -106,10 +107,16 @@ snakemake --snakefile Snakefile_1 --use-conda --conda-create-envs-only
 
 5. Perform a dry run first to ensure everything is working properly and no errors are seen.  
 ```plaintext
-snakemake --snakefile Snakefile.smk -n
+snakemake --snakefile Snakefile_1 -n
+snakemake --snakefile Snakefile_2 -n
 ```  
 
-6. For running Seq2Phylo 
+6. Run the first snakefile to perform pre-processing and assembly of data 
 ```plaintext
-snakemake --snakefile Snakefile.smk --use-conda
-```  
+snakemake --snakefile Snakefile_1 --use-conda
+```
+
+7. Run the second snakefile to perform post-assembly steps for generation of phylogenetic tree 
+```plaintext
+snakemake --snakefile Snakefile_2 --use-conda
+```
