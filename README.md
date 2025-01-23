@@ -116,7 +116,7 @@ snakemake --snakefile Snakefile_2 -n
 snakemake --snakefile Snakefile_1 --use-conda
 ```
 
-7. Run the second snakefile to perform post-assembly steps for generation of phylogenetic tree 
+7. Once the processes from Snakefile_1 are 100% completed, run Snakefile_2 to perform post-assembly steps for generation of phylogenetic tree 
 ```plaintext
 snakemake --snakefile Snakefile_2 --use-conda
 ```
