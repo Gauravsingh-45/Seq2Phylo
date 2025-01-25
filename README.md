@@ -35,7 +35,7 @@ http://www.iqtree.org/
 Raw sequencing reads in FASTQ format. The cleaning and removal of contaminant sequences will be carried out by Seq2Phylo pipeline.
 
 2. Reference genes:  
-Along with the reads, users also require a set of reference genes that can be either nucleotide or amino acid sequences in FASTA format. These reference sequences can be obtained from OrthoDB, OMA browser or custom set of genes expected to be present across all the samples used for constructing phylogenetic tree. The reference sequence file can contain multiple sequences for each locus using sequence IDs. Each sequence ID should include the organism name and the gene identifier, separated by a hyphen. The name of this fasta file needs to be specified in the config file.
+Along with the reads, users also require a set of reference genes that can be either nucleotide or amino acid sequences in FASTA format. These reference sequences can be obtained from OrthoDB, OMA browser or orthologous genes present across all the samples used for constructing phylogenetic tree. The reference sequence file can contain multiple sequences for each locus using sequence IDs, for example “Beetle_Species1-001” and “Beetle_Species2-001” signal to Hybpiper that both sequences belong to locus 001, this provides the flexibility to use one target file for samples covering a broad range of phylogenetic distance. The name of this fasta file needs to be specified in the config file.
 
 example of a reference genes file :
 ```plaintext
