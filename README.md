@@ -89,6 +89,8 @@ After the seq2phylo run completes, it generates multiple directories containing 
 
 - **logs**: This directory holds stdout and stderr files for each step, which are useful for debugging.
 
+- **allseqs.fas & allseqs.partitions.txt**: allseqs.fas is the concatenated gene alignment file and allseqs.partitions.txt contains partition information.
+
 # Seq2Phylo Usage
 
 1. Ensure the scripts directory, catsequences, Snakefile_1, Snakefile_2 and config.yaml are present in a directory.  
