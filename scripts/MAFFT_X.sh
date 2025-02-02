@@ -2,7 +2,7 @@
 
 input_dir="translated_gene_sequences"
 output_dir="aa_aligned_sequences"
-mafft_path="$1"  # Accept MAFFT path as a script argument
+mafft_path="$1"  
 
 export PATH=$PATH:$mafft_path
 
