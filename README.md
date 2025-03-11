@@ -2,7 +2,7 @@
 Here we describe Seq2Phylo, a pipeline that is designed to construct phylogenetic tree directly by high throughput Whole Genome Sequencing reads. Seq2Phylo works by skipping the genome assembly and annotation step, and directly generating high-accuracy species-level trees using reference gene assemblies across the genome.
 
 # Description of the Seq2Phylo workflow
-The pipeline involves pre-processing sequencing reads to ensure high-quality data for analysis. Raw sequencing reads are analyzed using FastQC and poor quality bases are trimmed using Trimmomatic v0.36 to ensure only high-quality reads are utilized. Hybpiper performs reference-based assembly of pre-processed reads, using specific aligners for nucleotide or amino acid sequences. The most suitable reference sequence for each gene and sample is identified based on alignment scores. Reads are sorted into directories corresponding to each gene in the reference set, and SPAdes reconstructs the reference gene sequence from the sorted reads. Extracted coding sequences are translated into amino acids using biopython, amino acid sequences are aligned using mafft v7.505 and then converted back to nucleotide sequences. The aligned nucleotide sequences are partitioned by genes and concatenated into a phylogenetic supermatrix using the catsequences tool. IQ-TREE v1.6.12 constructs a phylogenetic tree from the concatenated alignment, using the ModelFinder feature to identify the optimal substitution model for the data. The tree is then bootstrapped using UFBoot2 to determine the support for the tree's branches. Tree files can be then visualized in ETE toolkit or iTOL.
+The pipeline involves pre-processing sequencing reads to ensure high-quality data for analysis. Raw sequencing reads are analyzed using FastQC and poor quality bases are trimmed using Trimmomatic v0.36 to ensure only high-quality reads are utilized. Hybpiper performs reference-based assembly of pre-processed reads, using specific aligners for nucleotide or amino acid sequences. The most suitable reference sequence for each gene and sample is identified based on alignment scores. Reads are sorted into directories corresponding to each gene in the reference set, and SPAdes reconstructs the reference gene sequence from the sorted reads. Extracted coding sequences are translated into amino acids using biopython, amino acid sequences are aligned using mafft v7.505 and then converted back to nucleotide sequences. Poorly aligned regions are filtered using Clipkit. The filtered nucleotide alignments are partitioned by genes and concatenated into a phylogenetic supermatrix using the catsequences tool. IQ-TREE v1.6.12 constructs a phylogenetic tree from the concatenated alignment, using the ModelFinder feature to identify the optimal substitution model for the data. The tree is then bootstrapped using UFBoot2 to determine the support for the tree's branches. Tree files can be then visualized in ETE toolkit or iTOL.
 
 # Dependencies
 1. Snakemake :
@@ -18,11 +18,14 @@ http://www.usadellab.org/cms/?page=trimmomatic
 https://github.com/mossmatters/HybPiper/wiki/Installation  
 (**Refer to the setup section of the above link and install HybPiper using conda**)
 
-6. Biopython :
+5. Biopython :
 https://biopython.org/wiki/Download
 
-7. MAFFT :
+6. MAFFT :
 https://mafft.cbrc.jp/alignment/software/
+
+7. Clipkit :
+https://github.com/JLSteenwyk/ClipKIT  (**Install using pip command in the snakemake environment**)
 
 8. Catsequences :
 https://github.com/ChrisCreevey/catsequences
@@ -93,32 +96,37 @@ After the seq2phylo run completes, it generates multiple directories containing 
 
 # Seq2Phylo Usage
 
-1. Ensure the scripts directory, catsequences, Snakefile_1, Snakefile_2 and config.yaml are present in a directory.  
+1. Ensure the scripts directory, catsequences, Snakefile_1, Snakefile_2 and config.yaml are present in a directory.
 
-2. Edit and fill in the config file completely.  
+2. Provide exectubale permissions to the biopython scripts. Run the below command in scripts directory.
+```plaintext
+chmod +x *
+```
 
-3. activate the snakemake environment:  
+3. Edit and fill in the config file completely.  
+
+4. activate the snakemake environment:  
 ```plaintext
 conda activate snakemake
 ```  
 
-4. Making separate conda environments from snakemake wrappers (fastqc and trimmomatic)  
+5. Making separate conda environments from snakemake wrappers (fastqc and trimmomatic)  
 ```plaintext
 snakemake --snakefile Snakefile_1 --use-conda --conda-create-envs-only
 ```  
 
-5. Perform a dry run first to ensure everything is working properly and no errors are seen.  
+6. Perform a dry run first to ensure everything is working properly and no errors are seen.  
 ```plaintext
 snakemake --snakefile Snakefile_1 -n
 snakemake --snakefile Snakefile_2 -n
 ```  
 
-6. Run the first snakefile to perform pre-processing and assembly of data 
+7. Run the first snakefile to perform pre-processing and assembly of data 
 ```plaintext
 snakemake --snakefile Snakefile_1 --use-conda
 ```
 
-7. Once the processes from Snakefile_1 are 100% completed, run Snakefile_2 to perform post-assembly steps for generation of phylogenetic tree 
+8. Once the processes from Snakefile_1 are 100% completed, run Snakefile_2 to perform post-assembly steps for generation of phylogenetic tree 
 ```plaintext
 snakemake --snakefile Snakefile_2 --use-conda
 ```
